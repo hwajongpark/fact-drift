@@ -1,0 +1,29 @@
+{
+  "$comment": "Demo targets: the latest stable version of common runtimes. These pages are server-rendered, so the skill reads them out of the box. Each entry maps a value you cite somewhere to the source page that owns it. Replace with your own facts.",
+  "targets": [
+    {
+      "id": "python-latest-stable",
+      "name": "Python latest stable release",
+      "url": "https://en.wikipedia.org/wiki/Python_(programming_language)",
+      "extract": "From the infobox, return the latest stable release version of Python (for example 3.14.5). Return only the version string.",
+      "doc_slug": "docs/requirements",
+      "notes": "Setup docs pin a minimum Python version; bump them when a new stable lands."
+    },
+    {
+      "id": "node-latest-stable",
+      "name": "Node.js latest stable release",
+      "url": "https://en.wikipedia.org/wiki/Node.js",
+      "extract": "From the infobox, return the latest stable release version of Node.js. Return only the version string.",
+      "doc_slug": "docs/install",
+      "notes": "Install guide references the current Node version."
+    },
+    {
+      "id": "kubernetes-latest-stable",
+      "name": "Kubernetes latest stable release",
+      "url": "https://en.wikipedia.org/wiki/Kubernetes",
+      "extract": "From the infobox, return the latest stable release version of Kubernetes (for example 1.36.1). Return only the version string.",
+      "doc_slug": "docs/deployment",
+      "notes": "Deployment guide cites the cluster version we target."
+    }
+  ]
+}

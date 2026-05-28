@@ -1,0 +1,99 @@
+---
+name: rule-drift
+description: Regulatory and fact freshness checks for any content site. Reads a JSON config of targets, fetches each source URL via parallel subagents using WebFetch, extracts the configured value, diffs against a stored baseline, and writes a snapshot report that names the doc each drift affects. Invoked as `/rule-drift` or `/rule-drift --update-baseline`. Runs on the Claude Code subscription, no API key. Use when checking whether cited numbers, thresholds, quotas, prices, or policy dates are still current at the source.
+---
+
+# rule-drift
+
+Verifies that facts cited in your content still match what the source page says. Catches silent upstream changes that would otherwise rot your docs.
+
+This skill is the cheap path: it uses parallel subagents calling WebFetch on the Claude Code subscription. It does not spawn a browser runner or any API-billed tool. Reserve a real browser for targets that require JavaScript rendering or login.
+
+## Inputs
+
+- **Config**: `rules.config.json` in your project root. A list of targets, each with `id`, `name`, `url`, `extract` (a natural-language extraction instruction), `doc_slug`, and `notes`. See `examples/rules.config.example.json`.
+- **Baselines**: `rule-drift-baseline/{target_id}.json`. The last captured value per target. Created by the first `--update-baseline` run.
+
+## Outputs
+
+- **Report**: `rule-drift-snapshots/snapshot-YYYY-MM-DD.md`. A status table plus drift detail.
+- **Updated baselines**: only when `--update-baseline` is passed.
+
+## Modes
+
+### `/rule-drift` (default)
+Diff mode. For each target: fetch, extract, compare to baseline, classify as OK / DRIFT / NEW / ERROR. Write the snapshot report.
+
+### `/rule-drift --update-baseline`
+Capture mode. Fetch every target and write the current value as the new baseline. No diff. Use on the first run, and after you confirm a drift is the new normal.
+
+### `/rule-drift --target <id>`
+Single-target mode. Same as default, restricted to one id.
+
+## Execution flow
+
+1. Resolve today's date (`date +%Y-%m-%d`).
+2. Read `rules.config.json`. Filter to `--target <id>` if provided.
+3. Confirm `rule-drift-baseline/` exists; create it if not.
+4. Spawn one subagent per target in parallel (single message, multiple Agent calls, `subagent_type: general-purpose`). Each subagent receives the target's `url` and `extract` instruction, plus the rules below.
+5. Aggregate subagent results.
+6. For each result:
+   - If `--update-baseline`: write `rule-drift-baseline/{id}.json` as `{ value, source_url, captured_at }`.
+   - Else: read the existing baseline and classify:
+     - No baseline file -> `NEW`
+     - Baseline value matches -> `OK`
+     - Baseline value differs -> `DRIFT`
+     - Subagent returned `NOT_FOUND` or errored -> `ERROR`
+7. Write the snapshot report:
+
+```markdown
+# Rule-drift snapshot, {today}
+
+| Target | Status | Current | Baseline | Source |
+| ------ | ------ | ------- | -------- | ------ |
+| {id}   | OK     | 60      | 60       | [source]({url}) |
+| {id}   | DRIFT  | 80      | 60       | [source]({url}) |
+
+## Drift detail
+
+### {id}
+- Notes: {target.notes}
+- Doc affected: {target.doc_slug}
+- Diff: was 60, now 80
+- Recommended action: update the doc that cites this value.
+```
+
+8. Print a one-screen summary: X of Y targets OK, any DRIFT items with the doc each affects, and the path to the full snapshot.
+
+## Subagent prompt template
+
+Use this as the body of each parallel `Agent` call. Substitute `{url}` and `{extract}` from the target's config.
+
+> You are checking a single source page. Use WebFetch to retrieve {url}. Read the returned content carefully and answer this question, returning ONLY the value with a one-line provenance note:
+>
+> {extract}
+>
+> If the value is found, return:
+> `VALUE: <value>`
+> `PROVENANCE: <one line describing where on the page you found it>`
+>
+> If you cannot find it after reading the page in full, return:
+> `VALUE: NOT_FOUND`
+> `PROVENANCE: <one line on what you did find, or why the page lacked it>`
+>
+> Do not call any other tool. Do not search the web. Do not summarize the rest of the page. Under 80 words total.
+
+## What this skill does not do
+
+- It does not auto-update your content. Drift is reported; you edit.
+- It does not handle login-walled or JS-rendered pages. If WebFetch returns boilerplate ("Enable JavaScript to view this page"), report ERROR with that message.
+- It does not commit anything. It writes the report and baseline files only.
+
+## When the cheap path stops being enough
+
+If a target consistently returns `ERROR: requires-JS`, the page genuinely needs a real browser. Options:
+1. Find a static or printable version of the same data.
+2. Build a one-off browser script for just that target, accepting the API cost.
+3. Drop the target if the data is not worth the cost.
+
+Document the decision in the target's `notes` field.

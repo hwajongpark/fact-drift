@@ -1,0 +1,29 @@
+{
+  "$comment": "Real-world example from the project this skill came out of: Korean government immigration and health-insurance pages. NOTE: several of these pages are JavaScript-rendered and anti-bot, so a plain fetch returns an error shell. They report ERROR and need the browser escape hatch described in SKILL.md (see 'When the cheap path stops being enough'). Kept here to show how the config maps to a real content operation, and how the skill handles pages it cannot read with a plain fetch. Not an out-of-the-box demo.",
+  "targets": [
+    {
+      "id": "f-2-7-points-threshold",
+      "name": "F-2-7 points threshold (Long-term Resident point system)",
+      "url": "https://www.hikorea.go.kr/info/InfoDatail.pt?CAT_SEQ=128",
+      "extract": "Find the minimum points required to qualify for the F-2-7 visa. Return only the integer threshold. If basic and bonus thresholds are listed, return both as 'basic: N, bonus: N'.",
+      "doc_slug": "f-2-7-visa-guide",
+      "notes": "JS-rendered page; needs the browser escape hatch. If this changes, the F-2-7 guide and the points calculator both need updates."
+    },
+    {
+      "id": "nhis-minimum-premium",
+      "name": "National health insurance minimum monthly premium",
+      "url": "https://www.nhis.or.kr/nhis/policy/wbhada16100m01.do",
+      "extract": "Find the current minimum monthly health-insurance premium for foreign subscribers. Return an integer in KRW.",
+      "doc_slug": "health-insurance-guide",
+      "notes": "URL and page structure change between policy years; re-confirm the source on ERROR."
+    },
+    {
+      "id": "d-10-job-seeking-cap",
+      "name": "D-10 job-seeking visa maximum cumulative stay",
+      "url": "https://www.hikorea.go.kr/info/InfoDatail.pt?CAT_SEQ=304",
+      "extract": "Find the maximum cumulative stay permitted on the D-10 visa. Return as 'N months' or 'N years'.",
+      "doc_slug": "d-10-visa-guide",
+      "notes": "JS-rendered page; needs the browser escape hatch."
+    }
+  ]
+}

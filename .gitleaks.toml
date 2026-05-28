@@ -1,0 +1,45 @@
+title = "rule-drift internal-reference detector"
+
+# Extends the default gitleaks ruleset with project-specific patterns.
+# Install as a pre-commit hook in the PUBLIC repo so private references
+# can never reach a public commit. See README of the private monorepo.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "private-supabase-host"
+description = "Private Supabase project host"
+regex = '''[a-z0-9]+\.supabase\.co'''
+tags = ["internal"]
+
+[[rules]]
+id = "supabase-service-role"
+description = "Supabase service-role key reference"
+regex = '''SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*\S+'''
+tags = ["secret"]
+
+[[rules]]
+id = "absolute-home-path"
+description = "Absolute path to a local home directory"
+regex = '''/Users/[a-z]+/|/home/[a-z]+/'''
+tags = ["internal"]
+
+[[rules]]
+id = "private-project-name"
+description = "Private project / brand name that must not ship publicly"
+regex = '''(?i)seoulstart|gorillavalue'''
+tags = ["internal"]
+
+[[rules]]
+id = "personal-email"
+description = "Personal email address"
+regex = '''[a-z0-9._%+-]+@gmail\.com'''
+tags = ["internal"]
+
+# Allowlist: the demo config legitimately references public government URLs.
+[allowlist]
+description = "Demo config and docs may reference public source URLs"
+paths = [
+  '''examples/.*\.json''',
+  '''README\.md''',
+]
