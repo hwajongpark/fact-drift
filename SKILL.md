@@ -1,6 +1,6 @@
 ---
 name: rule-drift
-description: Regulatory and fact freshness checks for any content site. Reads a JSON config of targets, fetches each source URL via parallel subagents using WebFetch, extracts the configured value, diffs against a stored baseline, writes a snapshot report, and on your approval updates every file that still cites an outdated value. Invoked as `/rule-drift`, `/rule-drift --update-baseline`, or `/rule-drift --apply`. Runs on the Claude Code subscription, no API key. Use when checking whether cited numbers, thresholds, quotas, prices, or policy dates are still current, and fixing them across your files when they are not.
+description: A Claude Code skill that checks whether facts you cite from pages you don't control (prices, versions, limits, rules, deadlines) are still current. Reads a JSON config of targets, fetches each source URL via parallel subagents using WebFetch, extracts the configured value, diffs against a stored baseline, writes a snapshot report, and on your approval updates every file that still cites an outdated value. Invoked as `/rule-drift`, `/rule-drift --update-baseline`, or `/rule-drift --apply`. Runs on the Claude Code subscription, no API key. Use when checking whether cited numbers, thresholds, quotas, prices, or policy dates are still current, and fixing them across your files when they are not.
 ---
 
 # rule-drift
