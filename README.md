@@ -72,17 +72,17 @@ For a real-world example against JavaScript-rendered government pages, and how t
 
 ## Design Decisions
 
-**Natural-language extraction, not CSS selectors.** Targets describe the value in plain English ("the latest stable version"), not a DOM path. Selector-based monitors are cheaper but break every time a page is restyled, which is the most common way these checks silently rot. Reading the page with an LLM trades a little cost for resilience: the check survives a redesign as long as the value is still there.
+**Plain words, not code, to find the value.** I tell it what to look for in plain English, like "find the latest version number." The other option is to point at an exact spot in the page's code. That is faster, but it breaks the moment someone redesigns the page, even when the number is still sitting right there. Plain words keep working through a redesign. Worth the small extra cost.
 
-**A stored baseline, because the point is change, not current value.** Anyone can read today's number. Detecting that it moved since last time needs memory, so each reading is saved as `{value, source_url, captured_at}` and every run compares against the prior truth.
+**It remembers the last value, so it can spot a change.** To know a number changed, you have to know what it was before. The first run writes down each value and where it found it. Every run after that compares now against last time. No memory, no way to catch a change.
 
-**Report and stop, never auto-edit.** It flags drift and names the doc to fix; it never touches your content. Letting an LLM rewrite a live doc from a single extracted value fails worse than the problem it solves. A human makes the edit.
+**It tells you, it does not touch your files.** It flags what changed and which file to fix, then stops. If I let it rewrite a live page off a single number it read, one misread would quietly break a real page. That is worse than just making the edit yourself.
 
-**Slug linkage, so drift is actionable.** Each target maps to the doc that cites it. "The version changed" is information; "the version changed, update `docs/requirements`" is a task.
+**It points at the exact file to fix.** It does not only say "a number changed." It says which of your files used that number. "Something changed" sends you hunting. "This changed, fix this file" is something you can just do.
 
-**Runs on the Claude Code subscription, not an API runner.** Zero cost per run, usable by anyone with Claude Code. The tradeoff is the plain-fetch limit: JavaScript-rendered or login-walled pages error and need the browser escape hatch above. For server-rendered sources, the cheap path is enough.
+**It runs free on Claude Code.** It uses the Claude Code plan you already have, so every check costs nothing and anyone with Claude Code can run it. The catch: it reads pages the simple way, so pages that need a full browser (heavy JavaScript, logins) will not work, and it says so plainly. Most pages are fine.
 
-**The value is the harness, not the check.** Underneath, this is a page-read you could do by hand. What makes it reliable is everything around it: a frozen target list so nothing is forgotten, a baseline so change is detectable, slug linkage so drift is actionable, and a schedule so it runs without you. It turns "remember to check the data" into a mechanism that cannot be forgotten.
+**The trick is not the check, it is everything around it.** Honestly, underneath this is just "go read a page," something you could do by hand. What makes it useful is the rest: a fixed list so you never forget a number, a saved history so it can spot changes, a link to the file to fix, and a schedule so it runs without you. It turns "remember to check this" into something that checks itself.
 
 ## What It Does Not Do
 
