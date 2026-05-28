@@ -12,11 +12,11 @@
 
 A Claude Code skill that checks whether the facts you cite are still true at the source, and tells you which of your docs to fix when they are not.
 
-Unlike page-diff monitors such as changedetection.io, rule-drift extracts the actual value and names the doc you need to fix.
+Tools like changedetection.io tell you a page changed. rule-drift tells you what the value changed to, and which of your files to fix.
 
 ## The Problem
 
-If your content quotes numbers that live on someone else's website (a government threshold, a published quota, a price, a policy date), those numbers go stale silently. The source page changes, your content does not, and you find out when a reader does. Generic page-change monitors tell you "this page changed." They do not tell you the value went from 60 to 80, and they have no idea which of your files now needs an edit.
+Your content quotes numbers from other people's websites: a government limit, a quota, a price, a deadline. Those numbers change, and nobody tells you. The source page updates, your article does not, and you find out when a reader does. Tools that watch pages can say "this page changed," but they cannot tell you the number went from 60 to 80, or which of your files now needs fixing.
 
 ## Demo
 
@@ -45,9 +45,11 @@ cp ~/.claude/skills/rule-drift/examples/rules.config.example.json ./rules.config
 
 ## How It Works
 
-`rule-drift` reads a JSON config of targets. Each target is one fact you care about: a URL, a natural-language instruction describing the value to extract, and the slug of the doc that cites it. On a run, it fans out one Claude subagent per target in parallel, each fetching its page and returning a single extracted value with a one-line provenance note. It diffs every value against a stored baseline of `{ value, source_url, captured_at }` and classifies each as OK, DRIFT, NEW, or ERROR. The output is a dated snapshot report; on a DRIFT it names the exact doc slug that now needs an edit.
+You give it a list. Each item is one fact: the web page it lives on, a plain-English note for what to pull ("find the latest version number"), and which of your files uses it.
 
-The extraction is natural-language, not a CSS selector. You write "find the minimum points required to qualify," not `div.table > tr:nth-child(3)`. So a target keeps working when the source page is restyled, which is the failure mode that breaks selector-based monitors.
+When it runs, it opens each page, reads out that one value, and compares it to what it saw last time. Each fact comes back as one of four things: OK (unchanged), DRIFT (changed), NEW (no record yet), or ERROR (could not read the page). You get a dated report, and for anything that changed, it names the file to fix.
+
+Under the hood it checks all the pages at once, so a long list still finishes fast.
 
 ## Configuration
 
@@ -68,7 +70,7 @@ One entry per fact. The included [`examples/rules.config.example.json`](examples
 }
 ```
 
-For a real-world example against JavaScript-rendered government pages, and how the skill reports the ones a plain fetch cannot read, see [`examples/advanced-korea-gov.config.json`](examples/advanced-korea-gov.config.json).
+Want a real-world example? [`examples/advanced-korea-gov.config.json`](examples/advanced-korea-gov.config.json) tracks Korean government pages. Some of those need a full browser, so it also shows how the skill handles pages it cannot read.
 
 ## Design Decisions
 
@@ -87,7 +89,7 @@ For a real-world example against JavaScript-rendered government pages, and how t
 ## What It Does Not Do
 
 - It does not auto-edit your content. Drift is reported; you make the edit.
-- It does not handle login-walled or JavaScript-rendered pages. If a fetch returns boilerplate, the target reports ERROR and needs a real browser, which is a separate path.
+- It does not handle pages behind a login, or pages that need heavy JavaScript to load. If a page will not load as plain text, that target reports ERROR and needs a real browser, which is a separate path.
 - It does not commit anything. It writes a report and the baseline files.
 
 ## License
