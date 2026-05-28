@@ -26,7 +26,7 @@ Anywhere your content repeats a fact that lives on a page you do not control:
 - **Developer docs** that pin versions ("requires Node 20+", "tested on Python 3.12"). Keep install and compatibility notes in step with upstream releases.
 - **Pricing and comparison pages** that cite a competitor's price or plan limits. When they change their pricing, your "X vs Y" page stops being quietly wrong.
 - **Compliance and policy pages** that track regulations: tax rates, minimum wage, filing deadlines, reporting limits.
-- **Affiliate and review content** ("best X of 2026") that lists specs, prices, or ratings pulled from product pages.
+- **Affiliate and review roundups** that cite specs, prices, or ratings from product pages, the kind that goes stale the moment a product changes.
 - **API and integration docs** that reference a third party's rate limits, endpoints, or end-of-life dates.
 
 ## Demo
