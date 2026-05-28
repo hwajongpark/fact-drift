@@ -1,9 +1,9 @@
 ---
-name: rule-drift
-description: A Claude Code skill that checks whether facts you cite from pages you don't control (prices, versions, limits, rules, deadlines) are still current. Reads a JSON config of targets, fetches each source URL via parallel subagents using WebFetch, extracts the configured value, diffs against a stored baseline, writes a snapshot report, and on your approval updates every file that still cites an outdated value. Invoked as `/rule-drift`, `/rule-drift --update-baseline`, or `/rule-drift --apply`. Runs on the Claude Code subscription, no API key. Use when checking whether cited numbers, thresholds, quotas, prices, or policy dates are still current, and fixing them across your files when they are not.
+name: fact-drift
+description: A Claude Code skill that checks whether facts you cite from pages you don't control (prices, versions, limits, rules, deadlines) are still current. Reads a JSON config of targets, fetches each source URL via parallel subagents using WebFetch, extracts the configured value, diffs against a stored baseline, writes a snapshot report, and on your approval updates every file that still cites an outdated value. Invoked as `/fact-drift`, `/fact-drift --update-baseline`, or `/fact-drift --apply`. Runs on the Claude Code subscription, no API key. Use when checking whether cited numbers, thresholds, quotas, prices, or policy dates are still current, and fixing them across your files when they are not.
 ---
 
-# rule-drift
+# fact-drift
 
 Verifies that facts cited in your content still match what the source page says. Catches silent upstream changes that would otherwise rot your docs.
 
@@ -12,37 +12,37 @@ This skill is the cheap path: it uses parallel subagents calling WebFetch on the
 ## Inputs
 
 - **Config**: `rules.config.json` in your project root. A list of targets, each with `id`, `name`, `url`, `extract` (a natural-language extraction instruction), `doc_slug`, and `notes`. See `examples/rules.config.example.json`.
-- **Baselines**: `rule-drift-baseline/{target_id}.json`. The last captured value per target. Created by the first `--update-baseline` run.
+- **Baselines**: `fact-drift-baseline/{target_id}.json`. The last captured value per target. Created by the first `--update-baseline` run.
 
 ## Outputs
 
-- **Report**: `rule-drift-snapshots/snapshot-YYYY-MM-DD.md`. A status table plus drift detail.
+- **Report**: `fact-drift-snapshots/snapshot-YYYY-MM-DD.md`. A status table plus drift detail.
 - **Updated baselines**: only when `--update-baseline` is passed, or after an approved apply.
 - **Edited content files**: only after you approve an apply step. The skill never writes to your content without confirmation.
 
 ## Modes
 
-### `/rule-drift` (default)
+### `/fact-drift` (default)
 Diff mode. For each target: fetch, extract, compare to baseline, classify as OK / DRIFT / NEW / ERROR. Write the snapshot report. If anything drifted, offer to apply the fixes (see the Apply step).
 
-### `/rule-drift --apply`
+### `/fact-drift --apply`
 Diff, then fix. For each DRIFT, find every file in the project that still contains the old value, show the planned edits, and after you confirm, update them all and refresh the baseline. Never edits without showing the plan first.
 
-### `/rule-drift --update-baseline`
+### `/fact-drift --update-baseline`
 Capture mode. Fetch every target and write the current value as the new baseline. No diff. Use on the first run, and after you confirm a drift is the new normal.
 
-### `/rule-drift --target <id>`
+### `/fact-drift --target <id>`
 Single-target mode. Same as default, restricted to one id.
 
 ## Execution flow
 
 1. Resolve today's date (`date +%Y-%m-%d`).
 2. Read `rules.config.json`. Filter to `--target <id>` if provided.
-3. Confirm `rule-drift-baseline/` exists; create it if not.
+3. Confirm `fact-drift-baseline/` exists; create it if not.
 4. Spawn one subagent per target in parallel (single message, multiple Agent calls, `subagent_type: general-purpose`). Each subagent receives the target's `url` and `extract` instruction, plus the rules below.
 5. Aggregate subagent results.
 6. For each result:
-   - If `--update-baseline`: write `rule-drift-baseline/{id}.json` as `{ value, source_url, captured_at }`.
+   - If `--update-baseline`: write `fact-drift-baseline/{id}.json` as `{ value, source_url, captured_at }`.
    - Else: read the existing baseline and classify:
      - No baseline file -> `NEW`
      - Baseline value matches -> `OK`

@@ -1,4 +1,4 @@
-title = "rule-drift internal-reference detector"
+title = "fact-drift internal-reference detector"
 
 # Extends the default gitleaks ruleset with project-specific patterns.
 # Install as a pre-commit hook in the PUBLIC repo so private references

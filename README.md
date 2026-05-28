@@ -1,18 +1,18 @@
 <!--
   BANNER: drop a 600x200 banner here before launch.
   drag an image into a GitHub issue comment to get a CDN URL, then:
-  <p align="center"><img src="URL" alt="rule-drift" width="600"></p>
+  <p align="center"><img src="URL" alt="fact-drift" width="600"></p>
 -->
 
 <p align="center">
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-black">
 </p>
 
-# rule-drift
+# fact-drift
 
 A Claude Code skill that catches when a fact you cite has changed at the source, shows you what is now out of date, and fixes every file once you approve.
 
-Most page monitors stop at "this page changed." rule-drift reads the actual value, finds every file that still has the old one, and updates them after you sign off.
+Most page monitors stop at "this page changed." fact-drift reads the actual value, finds every file that still has the old one, and updates them after you sign off.
 
 ## The Problem
 
@@ -34,7 +34,7 @@ Anywhere your content repeats a fact that lives on a page you do not control:
 A run that catches a change looks like this:
 
 ```text
-# rule-drift snapshot, 2026-05-28
+# fact-drift snapshot, 2026-05-28
 | Target                   | Status | Current | Baseline |
 | python-latest-stable     | OK     | 3.14.5  | 3.14.5   |
 | node-latest-stable       | DRIFT  | 26.1.0  | 24.9.0   |
@@ -51,17 +51,17 @@ Update both to "26.1.0"? [y/n]
 
 ```bash
 # Install as a Claude Code skill
-git clone https://github.com/hwajpark/rule-drift ~/.claude/skills/rule-drift
+git clone https://github.com/hwajpark/fact-drift ~/.claude/skills/fact-drift
 
 # Point it at your sources
-cp ~/.claude/skills/rule-drift/examples/rules.config.example.json ./rules.config.json
+cp ~/.claude/skills/fact-drift/examples/rules.config.example.json ./rules.config.json
 # edit rules.config.json: add your targets
 
 # Capture a baseline (first run)
-/rule-drift --update-baseline
+/fact-drift --update-baseline
 
 # Later, check for drift
-/rule-drift
+/fact-drift
 ```
 
 ## How It Works
