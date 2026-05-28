@@ -1,6 +1,6 @@
 ---
 name: rule-drift
-description: Regulatory and fact freshness checks for any content site. Reads a JSON config of targets, fetches each source URL via parallel subagents using WebFetch, extracts the configured value, diffs against a stored baseline, and writes a snapshot report that names the doc each drift affects. Invoked as `/rule-drift` or `/rule-drift --update-baseline`. Runs on the Claude Code subscription, no API key. Use when checking whether cited numbers, thresholds, quotas, prices, or policy dates are still current at the source.
+description: Regulatory and fact freshness checks for any content site. Reads a JSON config of targets, fetches each source URL via parallel subagents using WebFetch, extracts the configured value, diffs against a stored baseline, writes a snapshot report, and on your approval updates every file that still cites an outdated value. Invoked as `/rule-drift`, `/rule-drift --update-baseline`, or `/rule-drift --apply`. Runs on the Claude Code subscription, no API key. Use when checking whether cited numbers, thresholds, quotas, prices, or policy dates are still current, and fixing them across your files when they are not.
 ---
 
 # rule-drift
@@ -17,12 +17,16 @@ This skill is the cheap path: it uses parallel subagents calling WebFetch on the
 ## Outputs
 
 - **Report**: `rule-drift-snapshots/snapshot-YYYY-MM-DD.md`. A status table plus drift detail.
-- **Updated baselines**: only when `--update-baseline` is passed.
+- **Updated baselines**: only when `--update-baseline` is passed, or after an approved apply.
+- **Edited content files**: only after you approve an apply step. The skill never writes to your content without confirmation.
 
 ## Modes
 
 ### `/rule-drift` (default)
-Diff mode. For each target: fetch, extract, compare to baseline, classify as OK / DRIFT / NEW / ERROR. Write the snapshot report.
+Diff mode. For each target: fetch, extract, compare to baseline, classify as OK / DRIFT / NEW / ERROR. Write the snapshot report. If anything drifted, offer to apply the fixes (see the Apply step).
+
+### `/rule-drift --apply`
+Diff, then fix. For each DRIFT, find every file in the project that still contains the old value, show the planned edits, and after you confirm, update them all and refresh the baseline. Never edits without showing the plan first.
 
 ### `/rule-drift --update-baseline`
 Capture mode. Fetch every target and write the current value as the new baseline. No diff. Use on the first run, and after you confirm a drift is the new normal.
@@ -60,10 +64,16 @@ Single-target mode. Same as default, restricted to one id.
 - Notes: {target.notes}
 - Doc affected: {target.doc_slug}
 - Diff: was 60, now 80
-- Recommended action: update the doc that cites this value.
+- Recommended action: run `--apply` to update every file that cites this value.
 ```
 
-8. Print a one-screen summary: X of Y targets OK, any DRIFT items with the doc each affects, and the path to the full snapshot.
+8. **Apply** (on `--apply`, or when the user confirms after a default run). For each DRIFT:
+   - Search the project for files containing the old value. Start near the target's `doc_slug`, then widen if needed. Use grep.
+   - Show the user every match with file and line context, and the proposed change (`old -> new`).
+   - Ask for confirmation. Let the user deselect any match: a raw value like `60` can appear in unrelated places, and only the user knows which should change.
+   - On confirmation, edit each approved match, then refresh that target's baseline to the new value.
+   - Report which files changed. Do not git commit.
+9. Print a one-screen summary: X of Y targets OK, any DRIFT items with the doc each affects, what was edited if anything, and the path to the full snapshot.
 
 ## Subagent prompt template
 
@@ -85,7 +95,7 @@ Use this as the body of each parallel `Agent` call. Substitute `{url}` and `{ext
 
 ## What this skill does not do
 
-- It does not auto-update your content. Drift is reported; you edit.
+- It does not edit anything without showing you the plan and getting a yes. You can deselect any individual change.
 - It does not handle login-walled or JS-rendered pages. If WebFetch returns boilerplate ("Enable JavaScript to view this page"), report ERROR with that message.
 - It does not commit anything. It writes the report and baseline files only.
 
