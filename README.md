@@ -18,6 +18,17 @@ Most page monitors stop at "this page changed." rule-drift reads the actual valu
 
 Your content quotes numbers from other people's websites: a government limit, a quota, a price, a deadline. Those numbers change, and nobody tells you. The source page updates, your article does not, and you find out when a reader does. Tools that watch pages can say "this page changed," but they cannot tell you the number went from 60 to 80, or which of your files now needs fixing.
 
+## Use cases
+
+Anywhere your content repeats a fact that lives on a page you do not control:
+
+- **Help guides and knowledge bases** that quote government rules, fees, or deadlines, like visa, tax, or benefits guides. When a threshold changes, the skill flags the guide and offers to fix it.
+- **Developer docs** that pin versions ("requires Node 20+", "tested on Python 3.12"). Keep install and compatibility notes in step with upstream releases.
+- **Pricing and comparison pages** that cite a competitor's price or plan limits. When they change their pricing, your "X vs Y" page stops being quietly wrong.
+- **Compliance and policy pages** that track regulations: tax rates, minimum wage, filing deadlines, reporting limits.
+- **Affiliate and review content** ("best X of 2026") that lists specs, prices, or ratings pulled from product pages.
+- **API and integration docs** that reference a third party's rate limits, endpoints, or end-of-life dates.
+
 ## Demo
 
 A run that catches a change looks like this:
