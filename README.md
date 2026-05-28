@@ -72,23 +72,17 @@ For a real-world example against JavaScript-rendered government pages, and how t
 
 ## Design Decisions
 
-<!--
-  FILL THIS IN YOURSELF. This is the section a hiring manager reads to judge product thinking,
-  and it is reusable verbatim in a Decision Record (run /decision rule-drift design call).
-  Answer these in prose, 200 to 400 words total. Do not let me write it for you.
+**Natural-language extraction, not CSS selectors.** Targets describe the value in plain English ("the latest stable version"), not a DOM path. Selector-based monitors are cheaper but break every time a page is restyled, which is the most common way these checks silently rot. Reading the page with an LLM trades a little cost for resilience: the check survives a redesign as long as the value is still there.
 
-  - Why natural-language extraction over CSS-selector diffing? What did you reject, and what did
-    it cost you? (the selector approach is cheaper to run but rots on every restyle)
-  - Why a Claude Code skill on the subscription, not an API-billed runner or a hosted service?
-    Name the actual cost difference and who that tradeoff is right for.
-  - Why report-and-stop instead of auto-editing the docs? What is the failure mode you are
-    refusing to own?
-  - Why content-slug linkage at all? What does "which doc to fix" buy a user that "this page
-    changed" does not?
-  - Where does this break? (JS-rendered pages, login walls) and what is the honest escape hatch?
--->
+**A stored baseline, because the point is change, not current value.** Anyone can read today's number. Detecting that it moved since last time needs memory, so each reading is saved as `{value, source_url, captured_at}` and every run compares against the prior truth.
 
-`[ your design rationale goes here ]`
+**Report and stop, never auto-edit.** It flags drift and names the doc to fix; it never touches your content. Letting an LLM rewrite a live doc from a single extracted value fails worse than the problem it solves. A human makes the edit.
+
+**Slug linkage, so drift is actionable.** Each target maps to the doc that cites it. "The version changed" is information; "the version changed, update `docs/requirements`" is a task.
+
+**Runs on the Claude Code subscription, not an API runner.** Zero cost per run, usable by anyone with Claude Code. The tradeoff is the plain-fetch limit: JavaScript-rendered or login-walled pages error and need the browser escape hatch above. For server-rendered sources, the cheap path is enough.
+
+**The value is the harness, not the check.** Underneath, this is a page-read you could do by hand. What makes it reliable is everything around it: a frozen target list so nothing is forgotten, a baseline so change is detectable, slug linkage so drift is actionable, and a schedule so it runs without you. It turns "remember to check the data" into a mechanism that cannot be forgotten.
 
 ## What It Does Not Do
 
