@@ -105,7 +105,32 @@ Want a real-world example? [`examples/advanced-korea-gov.config.json`](examples/
 
 **It runs free on Claude Code.** It uses the Claude Code plan you already have, so every check costs nothing and anyone with Claude Code can run it. The catch: it reads pages the simple way, so pages that need a full browser (heavy JavaScript, logins) will not work, and it says so plainly. Most pages are fine.
 
-**The trick is not the check, it is everything around it.** Honestly, underneath this is just "go read a page," something you could do by hand. What makes it useful is the rest: a fixed list so you never forget a number, a saved history so it can spot changes, the ability to fix every file at once, and a schedule so it runs without you. It turns "remember to check this and fix it everywhere" into a single yes.
+**The trick is not the check, it is everything around it.** Honestly, underneath this is just "go read a page," something you could do by hand. What makes it useful is the rest: a fixed list so you never forget a number, a saved history so it can spot changes, the ability to fix every file at once, and a check you can put on a schedule so drift gets caught without you remembering. It turns "remember to check this and fix it everywhere" into a single yes.
+
+## Scheduling
+
+fact-drift is a command, so you schedule it the way you schedule any command: point a timer at it. A weekly GitHub Action that runs the check and leaves the result in the run log:
+
+```yaml
+# .github/workflows/fact-drift.yml
+name: fact-drift
+on:
+  schedule:
+    - cron: "0 8 * * 1"   # 08:00 UTC every Monday
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # runs Claude Code headlessly; see Claude Code's headless/CI docs for auth
+      - run: npx @anthropic-ai/claude-code -p "/fact-drift"
+```
+
+Two things to know before you rely on it:
+
+- **Schedule the check, approve the fixes.** fact-drift never edits a file without showing you the plan first, so an unattended run *detects* drift and reports it; you run `--apply` to approve the edits. Fixing a target hands-off is a choice you make per target, not the default.
+- **Only pages that load as plain text are good schedule targets.** A page behind heavy JavaScript or a login returns ERROR on the cheap path. Schedule the targets that fetch cleanly; for the JS-walled ones, run a real browser (a separate path) or schedule a staleness reminder and re-check them by hand.
 
 ## What It Does Not Do
 
