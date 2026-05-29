@@ -1,8 +1,6 @@
-<!--
-  BANNER: drop a 600x200 banner here before launch.
-  drag an image into a GitHub issue comment to get a CDN URL, then:
-  <p align="center"><img src="URL" alt="fact-drift" width="600"></p>
--->
+<p align="center">
+  <img src="assets/social-preview.png" alt="fact-drift — keep the facts you cite current." width="820">
+</p>
 
 <p align="center">
   <img alt="Claude Code skill" src="https://img.shields.io/badge/Claude%20Code-skill-black">
@@ -150,6 +148,10 @@ Two things to know before you rely on it:
 - It does not change anything without your approval. You see every edit before it touches a file, and you can drop any of them.
 - It does not handle pages behind a login, or pages that need heavy JavaScript to load. If a page will not load as plain text, that target reports ERROR and needs a real browser, which is a separate path.
 - It does not commit to git. It edits the files and updates the baseline; committing is yours.
+
+## Contributing
+
+Contributions are welcome. Bug reports (a page it misreads) and useful real-world target configs help most. If you have a config for a public source worth tracking, a pull request adding it alongside [`examples/advanced-korea-gov.config.json`](examples/advanced-korea-gov.config.json) gives the next person a head start.
 
 ## License
 
