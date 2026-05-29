@@ -5,6 +5,7 @@
 -->
 
 <p align="center">
+  <img alt="Claude Code skill" src="https://img.shields.io/badge/Claude%20Code-skill-black">
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-black">
 </p>
 
