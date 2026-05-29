@@ -1,0 +1,14 @@
+{
+  "name": "fact-drift",
+  "owner": {
+    "name": "Howard Park",
+    "url": "https://github.com/hwajongpark"
+  },
+  "plugins": [
+    {
+      "name": "fact-drift",
+      "source": "./",
+      "description": "Checks whether facts you cite from external pages (prices, versions, limits, rules, deadlines) are still current, then updates every file that has gone stale after you approve."
+    }
+  ]
+}

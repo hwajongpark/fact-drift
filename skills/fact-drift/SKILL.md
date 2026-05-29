@@ -51,7 +51,7 @@ Single-target mode. Same as default, restricted to one id.
 7. Write the snapshot report:
 
 ```markdown
-# Rule-drift snapshot, {today}
+# fact-drift snapshot, {today}
 
 | Target | Status | Current | Baseline | Source |
 | ------ | ------ | ------- | -------- | ------ |

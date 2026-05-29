@@ -50,13 +50,25 @@ Update both to "26.1.0"? [y/n]
 
 ## Quick Start
 
-```bash
-# Install as a Claude Code skill
-git clone https://github.com/hwajpark/fact-drift ~/.claude/skills/fact-drift
+Install as a plugin (recommended). In Claude Code:
 
-# Point it at your sources
-cp ~/.claude/skills/fact-drift/examples/rules.config.example.json ./rules.config.json
-# edit rules.config.json: add your targets
+```text
+/plugin marketplace add https://github.com/hwajongpark/fact-drift
+/plugin install fact-drift@fact-drift
+```
+
+Or install as a standalone skill:
+
+```bash
+git clone https://github.com/hwajongpark/fact-drift
+cp -r fact-drift/skills/fact-drift ~/.claude/skills/fact-drift
+```
+
+Then point it at your sources and run it:
+
+```bash
+# Copy the example config from the repo into your project, then add your targets
+cp examples/rules.config.example.json ./rules.config.json
 
 # Capture a baseline (first run)
 /fact-drift --update-baseline
