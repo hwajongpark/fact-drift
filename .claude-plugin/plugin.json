@@ -1,6 +1,5 @@
 {
   "name": "fact-drift",
-  "displayName": "fact-drift",
   "description": "Checks whether facts you cite from external pages (prices, versions, limits, rules, deadlines) are still current, then updates every file that has gone stale after you approve. Runs on the Claude Code subscription, no API key.",
   "version": "0.1.0",
   "author": {

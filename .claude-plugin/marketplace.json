@@ -4,6 +4,9 @@
     "name": "Howard Park",
     "url": "https://github.com/hwajongpark"
   },
+  "metadata": {
+    "description": "Claude Code plugins by Howard Park. Currently fact-drift, a fact-freshness monitor that flags and updates cited values (prices, versions, limits, deadlines) once they change at the source."
+  },
   "plugins": [
     {
       "name": "fact-drift",
